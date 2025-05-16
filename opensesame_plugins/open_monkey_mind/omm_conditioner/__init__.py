@@ -9,21 +9,23 @@ controls = [
     "type": "combobox",
     "options": [
       "Dummy",
-      "SeedDispenser"
+      "SeedDispenser",
+      "PoluluTicT825",
+      "JuicePumpCdp"
     ],
     "var": "conditioner"
   },
   {
     "label": "Serial port",
     "name": "line_edit_serial_port",
-    "info": "For SeedDispenser",
+    "info": "",
     "type": "line_edit",
     "var": "serial_port"
   },
   {
     "label": "Number of pulses",
     "name": "spinbox_motor_n_pulses",
-    "info": "For SeedDispenser",
+    "info": "For SeedDispenser and Polulu TicT825",
     "min_val": 0,
     "max_val": 999,
     "type": "spinbox",
@@ -38,6 +40,27 @@ controls = [
     "type": "spinbox",
     "suffix": " ms",
     "var": "motor_pause"
+  },
+  {
+    "label": "Start character",
+    "name": "line_edit_start",
+    "info": "Character to start JuicePumpCdp",
+    "type": "line_edit",
+    "var": "start"
+  },
+  {
+    "label": "Stop character",
+    "name": "line_edit_stop",
+    "info": "Character to stop JuicePumpCdp",
+    "type": "line_edit",
+    "var": "stop"
+  },
+  {
+    "label": "Duration (seconds)",
+    "name": "line_edit_secondes",
+    "info": "Duration for JuicePumpCdp",
+    "type": "line_edit",
+    "var": "secondes"
   },
   {
     "label": "Reward (seeds)",
