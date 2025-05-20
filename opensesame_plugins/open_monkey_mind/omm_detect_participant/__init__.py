@@ -8,9 +8,10 @@ controls = [
     "name": "combobox_detector",
     "type": "combobox",
     "options": [
-      "form",
-      "keypress",
-      "rfid"
+      "Form",
+      "KeyPress",
+      "RFID",
+      "RFIDrweTTL",
     ],
     "var": "detector"
   },
@@ -19,7 +20,7 @@ controls = [
     "name": "line_edit_serial_port",
     "info": "For RFID reader",
     "type": "line_edit",
-    "var": "serial_port"
+    "var": "serial_ports"
   },
   {
     "label": "Variable",
@@ -36,6 +37,22 @@ controls = [
     "var": "min_rep",
     "min_val": 1,
     "max_val": 1000
+  },
+  {
+    "label": "Enable read duration",
+    "name": "checkbox_enable_duration",
+    "type": "checkbox",
+    "var": "enable_duration",
+    "info": "Enable reading for a specific duration"
+  },
+  {
+    "label": "Read duration (seconds)",
+    "name": "spinbox_read_duration",
+    "type": "spinbox",
+    "var": "read_duration",
+    "min_val": 1,
+    "max_val": 3600,
+    "info": "Duration to read RFID in seconds"
   }
 ]
 
