@@ -102,10 +102,20 @@ class rfid:
 
     def prepare(self):
 
+        
         if not hasattr(self.experiment, '_omm_participant_process'):
             oslogger.info('starting RFID monitor process')
             import multiprocessing
             import queue
+            
+
+            # Important : define start method to avoid Windows/macOS error
+            try:
+                multiprocessing.set_start_method("spawn")
+            except RuntimeError:
+                pass  # Already define
+            
+            
             self.experiment._omm_participant_queue = multiprocessing.Queue()
             self.experiment._omm_participant_reset_event = multiprocessing.Event()
             self.experiment._omm_participant_stop_event = multiprocessing.Event()
