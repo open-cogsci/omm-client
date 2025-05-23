@@ -3,7 +3,7 @@ from libopensesame.py3compat import *
 from ._base_conditioner import BaseConditioner
 import serial
 import time
-import asyncio
+import threading
 import os
 
 
@@ -29,7 +29,6 @@ BAUD_RATE=9600
 
 # Parameter for seed dispenser
 DEFAULT_MOTOR_N_PULSES = 50
-DEFAULT_MOTOR_PAUSE = 2
 
 
 
@@ -43,11 +42,8 @@ class PoluluTicT825(BaseConditioner):
             'motor_n_pulses',
             DEFAULT_MOTOR_N_PULSES
         )
-        self.motor_pause = kwargs.get(
-            'motor_pause',
-            DEFAULT_MOTOR_PAUSE
-        )
         self._serial = serial.Serial(self._port, BAUD_RATE, timeout=0.1, write_timeout=0.1)
+
         
         
     def _stop(self, seed_dispenser=False, sound_left=False, sound_right=False):
@@ -55,17 +51,24 @@ class PoluluTicT825(BaseConditioner):
 
         
     def reward(self):
-        asyncio.run(self._reward())
-
-    async def _reward(self):
-        position = self.get_current_position()
-        new_target = position - self.motor_n_pulses
-        self.energize()
-        self.exit_safe_start()
-        self.set_target_position(new_target)
-        await asyncio.sleep(self.motor_pause)
-        self.deenergize()
-
+        #Don't wait motor to continue 
+        self._reward_thread = threading.Thread(target=self._reward, daemon=True)
+        self._reward_thread.start()
+        
+        
+    def _reward(self):
+        try:        
+            position = self.get_current_position()
+            new_target = position - self.motor_n_pulses
+            self.energize()
+            self.exit_safe_start()
+            self.set_target_position(new_target)
+            motor_pause = (self.motor_n_pulses * 0.004) + 1 #1 sec min, and 0.004s/step
+            time.sleep(motor_pause)            
+            self.deenergize()
+        except Exception as e:
+            print(f"Error in _reward thread : {e}")
+        
 
     # Sends the "Exit safe start" command.
     def exit_safe_start(self):
@@ -136,5 +139,10 @@ class PoluluTicT825(BaseConditioner):
             #time.sleep(0.2)
 
     def close(self):
-        
+
+        if hasattr(self, '_reward_thread') and self._reward_thread.is_alive():
+            print("Wait motor before continue (10s timeout)...")
+            self._reward_thread.join(timeout=10)
+            self.deenergize()
+            
         self._serial.close()

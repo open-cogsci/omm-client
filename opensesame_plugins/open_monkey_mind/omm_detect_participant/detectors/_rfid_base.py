@@ -17,14 +17,14 @@ class RFIDMonitorProcessCrashed(OMMException):
 
         
 
-class RFID:
+class rfid:
     
     
     
     RFID_LENGTH = 18    # The number of bytes of an RFID
     RFID_SEP = b'\r'    # The byte that separates RFIDs in the buffer
-    SERIAL_TIMEOUT = 0.01
-    
+    SERIAL_READ_TIMEOUT = 0.01
+    SERIAL_BAUDRATE = 9600
     
     
     def __init__(self, **kwargs):
@@ -33,17 +33,18 @@ class RFID:
             raise ValueError('BaseRFID expects experiment keyword')
         self.experiment = kwargs['experiment']
         
-        self.var = SimpleNamespace()
-        self.var.participant_variable = kwargs['participant_variable']
-        self.var.serial_ports = kwargs['serial_ports']
-        self.var.min_rep = kwargs['min_rep']
-        self.var.enable_duration = kwargs['enable_duration']
-        self.var.read_duration = kwargs['read_duration']
+        self.participant_variable = kwargs['participant_variable']
+        self.serial_ports = kwargs['serial_ports']
+        self.min_rep = kwargs['min_rep']
+        self.enable_duration = kwargs['enable_duration']
+        self.read_duration = kwargs['read_duration']
         
         
         
     @staticmethod
-    def _rfid_monitor(queue, reset_event, stop_event, ports, min_rep=3, serial_timeout=0.01,rfid_length = 18,rfid_sep = b'\r'):
+    def _rfid_monitor(queue, reset_event, stop_event, ports, min_rep=3,
+                      baudrate=9600,serial_read_timeout=0.01,
+                      rfid_length = 18,rfid_sep = b'\r'):
         """
         Monitor function that runs in a subprocess.
         Modified version that supports multiple RFID readers (each on its own port).
@@ -53,7 +54,7 @@ class RFID:
         readers = []
         try:
             for port in ports:
-                reader = serial.Serial(port=port, timeout=serial_timeout)
+                reader = serial.Serial(port=port,baudrate=baudrate,timeout=serial_read_timeout)
                 reader.flushInput()
                 readers.append((port, reader))
 
@@ -82,6 +83,8 @@ class RFID:
                         continue
     
                     if len(rfids) >= min_rep:
+                        print(rfids[0])
+                        break
                         rfid = rfids[0].decode()
                         if rfid != last_rfids[port]:
                          
@@ -108,7 +111,7 @@ class RFID:
             self.experiment._omm_participant_stop_event = multiprocessing.Event()
             
                         # Parse multiple ports from comma-separated list
-            ports = [p.strip() for p in self.var.serial_ports.split(',')]
+            ports = [p.strip() for p in self.serial_ports.split(',')]
             
             
             self.experiment._omm_participant_process = multiprocessing.Process(
@@ -117,8 +120,9 @@ class RFID:
                       self.experiment._omm_participant_reset_event,
                       self.experiment._omm_participant_stop_event,
                       ports,
-                      self.var.min_rep,
-                      self.SERIAL_TIMEOUT,
+                      self.min_rep,
+                      self.SERIAL_BAUDRATE,
+                      self.SERIAL_READ_TIMEOUT,
                       self.RFID_LENGTH,
                       self.RFID_SEP)
             )
@@ -144,9 +148,9 @@ class RFID:
                 break
 
         # Optional timeout logic (new feature)
-        duration_enabled =  "yes" if self.var.enable_duration =="yes" else "no"
+        duration_enabled =  "yes" if self.enable_duration =="yes" else "no"
 
-        read_duration = float(self.var.read_duration) if self.var.read_duration > 0 else 0
+        read_duration = float(self.read_duration) if self.read_duration > 0 else 0
         start_time = time.time()
         
         # Wait for a new RFID. While waiting, we make sure that the process
@@ -160,7 +164,7 @@ class RFID:
             if key is not None:
                 oslogger.info('identifier by key: {}'.format(key))
                 self.experiment.var.set(
-                    self.var.participant_variable,
+                    self.participant_variable,
                     '/{}/'.format(key)
                 )
                 return
@@ -179,7 +183,7 @@ class RFID:
             rfid = rfid_data
             oslogger.info(f'RFID detected (no port info): {rfid}')
 
-        self.experiment.var.set(self.var.participant_variable, '/{}/'.format(rfid))
+        self.experiment.var.set(self.participant_variable, '/{}/'.format(rfid))
         
         
     def close(self):

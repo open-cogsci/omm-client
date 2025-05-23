@@ -1,21 +1,23 @@
-from ._rfid_base import RFID
+from ._rfid_base import rfid
 import serial
 import time
 
-class RFIDrweTTL(RFID):
+class RfidRWeTTL(rfid):
     
     RFID_LENGTH = 16    # This board return 16 bytes
     RFID_SEP = b'\r'    # The byte that separates RFIDs in the buffer
     SERIAL_TIMEOUT = 0.1 # read_timeout need to be higher
     
     def __init__(self, **kwargs):   
-        super(RFIDrweTTL, self).__init__(**kwargs)
+        super(RfidRWeTTL, self).__init__(**kwargs)
 
 
 
 
     @staticmethod
-    def _rfid_monitor(queue, reset_event, stop_event, ports, min_rep=1, serial_timeout=0.1,rfid_length = 16,rfid_sep = b'\r'):
+    def _rfid_monitor(queue, reset_event, stop_event, ports, min_rep=1,
+                      baudrate=9600,serial_read_timeout=0.1,
+                      rfid_length = 16,rfid_sep = b'\r'):
         """
         Redefinition of this function for this card:
         1/ The tag format returned is in the form 995_NNNNNNNNNNNN and not 099NNNNNNNNNNNNNN.
@@ -25,7 +27,7 @@ class RFIDrweTTL(RFID):
         readers = []
         try:
             for port in ports:
-                reader = serial.Serial(port=port, timeout=serial_timeout)
+                reader = serial.Serial(port=port,baudrate=baudrate,timeout=serial_read_timeout)
                 reader.flushInput()
                 readers.append((port, reader))
 

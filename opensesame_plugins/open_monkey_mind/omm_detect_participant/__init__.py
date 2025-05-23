@@ -10,8 +10,8 @@ controls = [
     "options": [
       "Form",
       "KeyPress",
-      "RFID",
-      "RFIDrweTTL",
+      "rfid",
+      "RfidRWeTTL",
     ],
     "var": "detector"
   },
