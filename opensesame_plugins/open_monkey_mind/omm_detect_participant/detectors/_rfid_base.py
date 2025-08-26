@@ -9,6 +9,8 @@ from types import SimpleNamespace
 
 
 
+
+
 # A dummy class to signal that the RFID monitor crashed
 class RFIDMonitorProcessCrashed(OMMException):
     pass
@@ -21,9 +23,9 @@ class rfid:
     
     
     
-    RFID_LENGTH = 18    # The number of bytes of an RFID
+    RFID_LENGTH = 19   # The number of bytes of an RFID 18 + \r
     RFID_SEP = b'\r'    # The byte that separates RFIDs in the buffer
-    SERIAL_READ_TIMEOUT = 0.01
+    SERIAL_READ_TIMEOUT = 1 # Greater timout = less cpu. None is great too.
     SERIAL_BAUDRATE = 9600
     
     
@@ -42,7 +44,7 @@ class rfid:
         
         
     @staticmethod
-    def _rfid_monitor(queue, reset_event, stop_event, ports, min_rep=3,
+    def _rfid_monitor(queue, reset_event, stop_event, error_queue, ports, min_rep=3,
                       baudrate=9600,serial_read_timeout=0.01,
                       rfid_length = 18,rfid_sep = b'\r'):
         """
@@ -73,18 +75,16 @@ class rfid:
                 for port, reader in readers:
                     # Read incoming bytes and append to the buffer for that port
                     buffers[port] += reader.read(rfid_length)
-    
+
                     # Extract potential RFID strings
-                    rfids = [r for r in buffers[port].split(rfid_sep) if len(r) == rfid_length]
-    
+                    rfids = [r for r in buffers[port].split(rfid_sep) if len(r) == rfid_length-1]
+
                     if len(set(rfids)) > 1:
                         # If inconsistent reads are detected, keep only the repeated valid entries
-                        buffers[port] = RFID_SEP.join([rfids[-1]] * rfids.count(rfids[-1]))
+                        buffers[port] = RFID_SEP.join([rfids[-1]] * rfids.count(rfids[-1]))                        
                         continue
     
                     if len(rfids) >= min_rep:
-                        print(rfids[0])
-                        break
                         rfid = rfids[0].decode()
                         if rfid != last_rfids[port]:
                          
@@ -95,8 +95,8 @@ class rfid:
                 reader.close()
     
         except Exception as e:
-            print(f"Error in RFID monitor: {e}")
             stop_event.set()
+            error_queue.put(traceback.format_exc())
 
 
 
@@ -111,10 +111,10 @@ class rfid:
 
             # Important : define start method to avoid Windows/macOS error
             try:
-                multiprocessing.set_start_method("spawn")
+                if __name__ == "__main__":
+                    multiprocessing.set_start_method("spawn")
             except RuntimeError:
                 pass  # Already define
-            
             
             self.experiment._omm_participant_queue = multiprocessing.Queue()
             self.experiment._omm_participant_reset_event = multiprocessing.Event()
@@ -123,21 +123,24 @@ class rfid:
                         # Parse multiple ports from comma-separated list
             ports = [p.strip() for p in self.serial_ports.split(',')]
             
+            self.experiment._omm_participant_error_queue = multiprocessing.Queue()
             
             self.experiment._omm_participant_process = multiprocessing.Process(
                 target=self.__class__._rfid_monitor,
                 args=(self.experiment._omm_participant_queue,
                       self.experiment._omm_participant_reset_event,
                       self.experiment._omm_participant_stop_event,
+                      self.experiment._omm_participant_error_queue,
                       ports,
                       self.min_rep,
                       self.SERIAL_BAUDRATE,
                       self.SERIAL_READ_TIMEOUT,
                       self.RFID_LENGTH,
-                      self.RFID_SEP)
+                      self.RFID_SEP
+                      )
             )
             
-
+            
             self.experiment._omm_participant_process.start()
             self.experiment.cleanup_functions.append(self.close)
 
@@ -153,7 +156,7 @@ class rfid:
         # Eat up any pending RFIDs on the queue
         while not self.experiment._omm_participant_queue.empty():
             try:
-                self.experiment._omm_participant_queue.get_nowait()
+                self.experiment._omm_participant_queue.get_nowait()                
             except queue.Empty:
                 break
 
@@ -168,8 +171,15 @@ class rfid:
         # identifications with a key press
         while self.experiment._omm_participant_queue.empty():
             time.sleep(.01)
-            if not self.experiment._omm_participant_process.is_alive():
-                raise RFIDMonitorProcessCrashed()
+            
+            # Check RFID process error
+            while not self.experiment._omm_participant_error_queue.empty():
+                error = self.experiment._omm_participant_error_queue.get_nowait()
+                print("RFIDMonitorProcess errror :", error)
+                
+            #if not self.experiment._omm_participant_process.is_alive():
+            #    raise RFIDMonitorProcessCrashed()
+            
             key, timestamp = self._keyboard.get_key()
             if key is not None:
                 oslogger.info('identifier by key: {}'.format(key))

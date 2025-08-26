@@ -10,7 +10,7 @@ class OmmConditioner(Item):
 
         self.var.conditioner = 'Dummy'
         self.var.fallback_conditioner = 'Dummy'
-        self.var.serial_port = 'COM4'
+        self.var.serial_port = '/dev/ttyRFID'
         self.var.reward = 'yes'
         self.var.sound = 'do nothing'
         self.var.motor_n_pulses = 5

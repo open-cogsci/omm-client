@@ -4,17 +4,23 @@ from ._base_conditioner import BaseConditioner
 import serial
 import time
 import threading
-import os
+import platform
+
 
 
 def is_raspberry_pi():
-    return os.uname().machine.startswith('arm') and 'raspberrypi' in os.uname().nodename.lower()
+    try:
+        machine = platform.machine().lower()
+        return any(arch in machine for arch in ('arm', 'aarch64')) 
+    except Exception:
+        return False
+
 
 if is_raspberry_pi():
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BOARD)
-        pin=8        
+        print(f"Polulu Tic t825 sound control ready")
     except ImportError:
         print("Library RPi.GPIO not installed.")
 
@@ -24,7 +30,7 @@ PIN_RPY_SOUND_CTRL = 8
 
 
 
-DEFAULT_PORT = '/dev/ttyConditionner'
+DEFAULT_PORT = '/dev/ttyConditioner'
 BAUD_RATE=9600
 
 # Parameter for seed dispenser
@@ -130,11 +136,11 @@ class PoluluTicT825(BaseConditioner):
         
     def sound_off(self):
         if is_raspberry_pi():
-            GPIO.setup(PIN_RPY_SOUND_CTRL, GPIO.OUT, initial = GPIO.HIGH)
+            GPIO.output(PIN_RPY_SOUND_CTRL,GPIO.HIGH)
     
     def sound_both(self):
         if is_raspberry_pi():
-            GPIO.setup(PIN_RPY_SOUND_CTRL, GPIO.OUT, initial = GPIO.LOW)
+            GPIO.output(PIN_RPY_SOUND_CTRL,GPIO.LOW)
             #sleep a little, amp start
             #time.sleep(0.2)
 

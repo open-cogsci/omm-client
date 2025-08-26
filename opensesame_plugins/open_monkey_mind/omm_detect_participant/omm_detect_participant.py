@@ -10,7 +10,7 @@ class OmmDetectParticipant(Item):
         
         self.var.detector = 'Form'
         self.var.fallback_detector = 'Form'
-        self.var.serial_ports = 'COM3,COM4'  # Default: two example ports for RFID readers
+        self.var.serial_ports = '/dev/ttyRFID'  # If multiple board use ',' separator COM3,COM4
         self.var.participant_variable = 'participant'
         self.var.min_rep = 1
         self.var.enable_duration = 'no'  # Optional timeout feature for RFID read

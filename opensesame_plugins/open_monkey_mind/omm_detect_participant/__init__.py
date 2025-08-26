@@ -12,6 +12,7 @@ controls = [
       "KeyPress",
       "rfid",
       "RfidRWeTTL",
+      "RfidLID650_665"
     ],
     "var": "detector"
   },

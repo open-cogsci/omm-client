@@ -2,7 +2,7 @@ from libopensesame.py3compat import *
 from ._base_conditioner import BaseConditioner
 import serial
 
-DEFAULT_PORT = 'COM4'
+DEFAULT_PORT = '/dev/ttyConditioner'
 
 # Seed dispenser
 SEED_DISPENSER_ON = b'S10'
