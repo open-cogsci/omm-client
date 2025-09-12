@@ -24,6 +24,27 @@ controls = [
     "var": "serial_ports"
   },
   {
+    "label": "Serial baudrate",
+    "name": "line_edit_serial_baud",
+    "info": "",
+    "type": "line_edit",
+    "var": "serial_baud"
+  },      
+  {
+    "label": "RFID length",
+    "name": "line_edit_rfid_length",
+    "info": "Number of rfid bytes",
+    "type": "line_edit",
+    "var": "rfid_length"
+  },
+  {
+    "label": "RFID separator",
+    "name": "line_edit_rfid_sep",
+    "info": "rfid separator between two ID",
+    "type": "line_edit",
+    "var": "rfid_sep"
+  },
+  {
     "label": "Variable",
     "name": "line_edit_participant_variable",
     "info": "To store participant identifier",
@@ -45,6 +66,7 @@ controls = [
     "type": "checkbox",
     "var": "enable_duration",
     "info": "Enable reading for a specific duration"
+    
   },
   {
     "label": "Read duration (seconds)",

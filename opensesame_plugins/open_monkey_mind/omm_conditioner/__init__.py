@@ -59,7 +59,9 @@ controls = [
     "label": "Duration (seconds)",
     "name": "line_edit_secondes",
     "info": "Duration for JuicePumpCdp",
-    "type": "line_edit",
+    "min_val": 0,
+    "max_val": 9999,
+    "type": "spinbox",
     "var": "secondes"
   },
   {

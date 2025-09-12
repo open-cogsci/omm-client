@@ -14,7 +14,10 @@ class OmmConditioner(Item):
         self.var.reward = 'yes'
         self.var.sound = 'do nothing'
         self.var.motor_n_pulses = 5
-        self.var.motor_pause = 200      
+        self.var.motor_pause = 200
+        self.var.start = 'S'
+        self.var.stop = 'E'
+        self.var.secondes= 5
         
     def _init_conditioner(self):
         
@@ -32,8 +35,12 @@ class OmmConditioner(Item):
                 experiment=self.experiment,
                 port=self.var.serial_port,
                 motor_n_pulses = self.var.motor_n_pulses,
-                motor_pause = self.var.motor_pause         
+                motor_pause = self.var.motor_pause,
+                start=self.var.start,
+                stop=self.var.stop,
+                secondes=self.var.secondes                
             )
+            
         except Exception as e:
             oslogger.info(
                 'failed to initialize ({}), falling back to: {}'.format(

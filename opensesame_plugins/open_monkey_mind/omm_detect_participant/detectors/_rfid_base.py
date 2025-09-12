@@ -10,7 +10,6 @@ from types import SimpleNamespace
 
 
 
-
 # A dummy class to signal that the RFID monitor crashed
 class RFIDMonitorProcessCrashed(OMMException):
     pass
@@ -21,12 +20,7 @@ class RFIDMonitorProcessCrashed(OMMException):
 
 class rfid:
     
-    
-    
-    RFID_LENGTH = 19   # The number of bytes of an RFID 18 + \r
-    RFID_SEP = b'\r'    # The byte that separates RFIDs in the buffer
     SERIAL_READ_TIMEOUT = 1 # Greater timout = less cpu. None is great too.
-    SERIAL_BAUDRATE = 9600
     
     
     def __init__(self, **kwargs):
@@ -40,6 +34,9 @@ class rfid:
         self.min_rep = kwargs['min_rep']
         self.enable_duration = kwargs['enable_duration']
         self.read_duration = kwargs['read_duration']
+        self.serial_baud = kwargs['serial_baud']
+        self.rfid_length = kwargs['rfid_length']
+        self.rfid_sep = kwargs['rfid_sep']
         
         
         
@@ -52,7 +49,7 @@ class rfid:
         Modified version that supports multiple RFID readers (each on its own port).
         Each reader has its own input buffer and tracking for last detected RFID.
         """    
-        
+
         readers = []
         try:
             for port in ports:
@@ -102,7 +99,7 @@ class rfid:
 
     def prepare(self):
 
-        
+       
         if not hasattr(self.experiment, '_omm_participant_process'):
             oslogger.info('starting RFID monitor process')
             import multiprocessing
@@ -133,10 +130,10 @@ class rfid:
                       self.experiment._omm_participant_error_queue,
                       ports,
                       self.min_rep,
-                      self.SERIAL_BAUDRATE,
+                      self.serial_baud,
                       self.SERIAL_READ_TIMEOUT,
-                      self.RFID_LENGTH,
-                      self.RFID_SEP
+                      self.rfid_length,
+                      self.rfid_sep
                       )
             )
             

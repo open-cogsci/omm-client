@@ -67,6 +67,7 @@ class OmmAnnounce(BaseOMMPlugin, Item):
             exp._omm_participant_process = \
                 self.experiment._omm_participant_process
             exp._omm_participant_queue = self.experiment._omm_participant_queue
+            exp._omm_participant_error_queue = self.experiment._omm_participant_error_queue
             exp._omm_participant_reset_event = \
                 self.experiment._omm_participant_reset_event
             exp._omm_participant_stop_event = \

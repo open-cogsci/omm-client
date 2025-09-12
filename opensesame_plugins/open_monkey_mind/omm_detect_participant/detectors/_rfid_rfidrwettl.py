@@ -3,9 +3,7 @@ import serial
 import time
 
 class RfidRWeTTL(rfid):
-    
-    RFID_LENGTH = 16    # This board return 16 bytes
-    RFID_SEP = b'\r'    # The byte that separates RFIDs in the buffer
+
     SERIAL_TIMEOUT = 0.1 # read_timeout need to be higher
     
     def __init__(self, **kwargs):   
@@ -15,7 +13,7 @@ class RfidRWeTTL(rfid):
 
 
     @staticmethod
-    def _rfid_monitor(queue, reset_event, stop_event, ports, min_rep=1,
+    def _rfid_monitor(queue, reset_event, stop_event,error_queue, ports, min_rep=1,
                       baudrate=9600,serial_read_timeout=0.1,
                       rfid_length = 16,rfid_sep = b'\r'):
         """
@@ -23,7 +21,7 @@ class RfidRWeTTL(rfid):
         1/ The tag format returned is in the form 995_NNNNNNNNNNNN and not 099NNNNNNNNNNNNNN.
         2/ A 'RAT' command must be sent to force the reading of a tag that has already been read and is still within range.
         """    
-        
+     
         readers = []
         try:
             for port in ports:
@@ -80,6 +78,6 @@ class RfidRWeTTL(rfid):
                 reader.close()
     
         except Exception as e:
-            print(f"Error in RFID monitor: {e}")
             stop_event.set()
+            error_queue.put(traceback.format_exc())
             

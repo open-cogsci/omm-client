@@ -11,10 +11,7 @@ import socket
 
 class RfidLID650_665(rfid):
     
-    RFID_LENGTH = 9    # The number of bytes of an RFID
-    RFID_SEP = b'\x03'    # The byte that separates RFIDs in the buffer
     SERIAL_READ_TIMEOUT = None
-    SERIAL_BAUDRATE = 19200
 
 
     def __init__(self, **kwargs):   
@@ -27,6 +24,7 @@ class RfidLID650_665(rfid):
     def _rfid_monitor(queue, reset_event, stop_event, error_queue, ports, min_rep=1,
                       baudrate=19200,serial_read_timeout=0.1,
                       rfid_length = 16,rfid_sep = b'\r'):
+      
         """
         Redefinition of this function for this card:
         String format
