@@ -8,6 +8,7 @@ import serial
 from types import SimpleNamespace
 
 
+from datetime import datetime
 
 
 # A dummy class to signal that the RFID monitor crashed
@@ -20,7 +21,7 @@ class RFIDMonitorProcessCrashed(OMMException):
 
 class rfid:
     
-    SERIAL_READ_TIMEOUT = 1 # Greater timout = less cpu. None is great too.
+    SERIAL_READ_TIMEOUT = 0.5 # Greater timout = less cpu. None is great too.
     
     
     def __init__(self, **kwargs):
@@ -68,26 +69,51 @@ class rfid:
                         reader.flushInput()
                         buffers[port] = b''
                         last_rfids[port] = None
-    
+                        #Perhaps empty the queue here ?...TODO OR NOT (keep here for memory)
+                        #while not queue.empty():
+                        #    try:
+                        #        queue.get_nowait()                
+                        #    except queue.Empty:
+                        #        break                        
+                
+
                 for port, reader in readers:
                     # Read incoming bytes and append to the buffer for that port
                     buffers[port] += reader.read(rfid_length)
-
+                    
+                    #If reset_event is set when reader is stuck by timeout TODO OR NOT (keep here for memory)
+                    #force another loop to erase buffer &co
+                    #if reset_event.is_set():
+                    #        break
+                        
                     # Extract potential RFID strings
                     rfids = [r for r in buffers[port].split(rfid_sep) if len(r) == rfid_length-1]
 
-                    if len(set(rfids)) > 1:
-                        # If inconsistent reads are detected, keep only the repeated valid entries
-                        buffers[port] = RFID_SEP.join([rfids[-1]] * rfids.count(rfids[-1]))                        
-                        continue
-    
-                    if len(rfids) >= min_rep:
-                        rfid = rfids[0].decode()
-                        if rfid != last_rfids[port]:
-                         
+                    #Doesn"t work, I don't know why. replaced by the code above (keep here for memory)
+                    #if len(set(rfids)) > 1:
+                    #    # If inconsistent reads are detected, keep only the repeated valid entries
+                    #    buffers[port] = RFID_SEP.join([rfids[-1]] * rfids.count(rfids[-1]))
+                    #    error_queue.put(buffers[port])
+                    #    continue
+                    
+                    #For each tag, count how many times it appears to try to eliminate read errors.
+                    for i in range(len(rfids)-1, -1, -1):
+                        if rfids.count(rfids[i])>=min_rep: 
+                            rfid = rfids[i].decode()
+                             
                             queue.put((port, rfid))  # Include port to help identify source
                             last_rfids[port] = rfid
-    
+                            buffers[port] = b''
+                            
+                    #(keep here for memory)
+                    #if len(rfids) >= min_rep: 
+                    #    rfid = rfids[-1].decode()
+                    #    #if rfid != last_rfids[port]: Why ?
+                    #     
+                    #    queue.put((port, rfid))  # Include port to help identify source
+                    #    last_rfids[port] = rfid
+                    #    buffers[port] = b''
+
             for _, reader in readers:
                 reader.close()
     
@@ -204,9 +230,13 @@ class rfid:
         
         
     def close(self):
-        # Stop the monitor process so the signal isn't blocked on the next 
-        # experiment
-        oslogger.info('stopping RFID monitor process')
-        self.experiment._omm_participant_stop_event.set()
-        self.experiment._omm_participant_process.join()
+        #When serial process is started on entrypoint, we don't want to close between tasks
+        #We let the master experiment (the entrypoint) to close it.
+        #_omm_participant_no_close_process is created in omm_announce
+        if not hasattr(self.experiment, '_omm_participant_no_close_process'):
+            # Stop the monitor process so the signal isn't blocked on the next 
+            # experiment
+            oslogger.info('stopping RFID monitor process')
+            self.experiment._omm_participant_stop_event.set()
+            self.experiment._omm_participant_process.join()
         
