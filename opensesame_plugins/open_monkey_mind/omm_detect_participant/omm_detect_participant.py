@@ -10,8 +10,8 @@ from libopensesame.item import Item
 from openmonkeymind._exceptions import OMMException
 
 # Constants for RFID handling
-RFID_LENGTH = 18  # Number of bytes in a valid RFID
-RFID_SEP = b'\r'  # RFID separator in the buffer
+RFID_LENGTH = 15  # Number of bytes in a valid RFID
+RFID_SEP = b';'  # RFID separator in the buffer
 
 # Custom exception used to indicate that the RFID monitoring process has crashed
 class RFIDMonitorProcessCrashed(OMMException):
