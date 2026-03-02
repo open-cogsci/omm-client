@@ -129,11 +129,11 @@ define sequence test_sequence
 	set description "Runs a number of items in sequence"
 	run menu always
 	run repeat_cycle always
-	run test_reward "response = s"
-	run test_left_speaker "response = l"
-	run test_right_speaker "response = r"
-	run test_both_speakers "response = b"
-	run sound "response != q"
+	run test_reward "response == 's'"
+	run test_left_speaker "response == 'l'"
+	run test_right_speaker "response == 'r'"
+	run test_both_speakers "response == 'b'"
+	run sound "response != 'q'"
 	run waiting always
 
 define sketchpad waiting

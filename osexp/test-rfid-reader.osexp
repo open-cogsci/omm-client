@@ -41,7 +41,7 @@ define repeat_cycle be_infinite
 	set condition "[participant] != q"
 
 define omm_detect_participant detect
-	set serial_port COM7
+	set serial_port "/dev/ttyUSB0"
 	set participant_variable participant
 	set min_rep 1
 	set detector rfid
