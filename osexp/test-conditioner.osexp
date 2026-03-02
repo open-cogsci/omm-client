@@ -1,7 +1,7 @@
 ---
-API: 2.1
-OpenSesame: 3.3.8
-Platform: nt
+API: 3
+OpenSesame: 4.1.9
+Platform: posix
 ---
 set width 1024
 set uniform_coordinates yes
@@ -26,6 +26,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
+set experiment_path "/home/sebastiaan/git/omm-client/osexp"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -70,17 +71,23 @@ define synth sound
 	set decay 5
 	set attack 0
 
-define OMMConditioner test_both_speakers
+define omm_conditioner test_both_speakers
 	set sound both
 	set serial_port "[conditioner_port]"
 	set reward no
+	set motor_pause 200
+	set motor_n_pulses 5
+	set fallback_conditioner Dummy
 	set description "Conditioner plugin for Open Monkey Mind"
 	set conditioner SeedDispenser
 
-define OMMConditioner test_left_speaker
+define omm_conditioner test_left_speaker
 	set sound left
 	set serial_port "[conditioner_port]"
 	set reward no
+	set motor_pause 200
+	set motor_n_pulses 5
+	set fallback_conditioner Dummy
 	set description "Conditioner plugin for Open Monkey Mind"
 	set conditioner SeedDispenser
 
@@ -97,17 +104,23 @@ define loop test_loop
 	setcycle 0 empty_column ""
 	run test_sequence
 
-define OMMConditioner test_reward
+define omm_conditioner test_reward
 	set sound off
 	set serial_port "[conditioner_port]"
 	set reward yes
+	set motor_pause 200
+	set motor_n_pulses 5
+	set fallback_conditioner Dummy
 	set description "Conditioner plugin for Open Monkey Mind"
 	set conditioner SeedDispenser
 
-define OMMConditioner test_right_speaker
+define omm_conditioner test_right_speaker
 	set sound right
 	set serial_port "[conditioner_port]"
 	set reward no
+	set motor_pause 200
+	set motor_n_pulses 5
+	set fallback_conditioner Dummy
 	set description "Conditioner plugin for Open Monkey Mind"
 	set conditioner SeedDispenser
 
@@ -116,11 +129,11 @@ define sequence test_sequence
 	set description "Runs a number of items in sequence"
 	run menu always
 	run repeat_cycle always
-	run test_reward "[response] = s"
-	run test_left_speaker "[response] = l"
-	run test_right_speaker "[response] = r"
-	run test_both_speakers "[response] = b"
-	run sound "[response] != q"
+	run test_reward "response = s"
+	run test_left_speaker "response = l"
+	run test_right_speaker "response = r"
+	run test_both_speakers "response = b"
+	run sound "response != q"
 	run waiting always
 
 define sketchpad waiting
