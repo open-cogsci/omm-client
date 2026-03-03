@@ -2,31 +2,36 @@ from libopensesame.py3compat import *
 from ._base_conditioner import BaseConditioner
 import serial
 
-DEFAULT_PORT = 'COM4'
+DEFAULT_PORT = "COM4"
 
 
 class JuicePumpCdp(BaseConditioner):
     def __init__(self, **kwargs):
         super(JuicePumpCdp, self).__init__(**kwargs)
-        self._port = kwargs.get('port', DEFAULT_PORT)
-        
-        self.start = kwargs.get('start', 'S')  # Default start signal
+        self._port = kwargs.get("port", DEFAULT_PORT)
+
+        self.start = kwargs.get("start", "S")  # Default start signal
         if not isinstance(self.start, str):
-            raise TypeError(f"'start' doit être une chaîne, mais a reçu {type(self.start).__name__}")
-        
-        self.stop = kwargs.get('stop', 'E')   # Default stop signal
+            raise TypeError(
+                f"'start' doit être une chaîne, mais a reçu {type(self.start).__name__}"
+            )
+
+        self.stop = kwargs.get("stop", "E")  # Default stop signal
         if not isinstance(self.stop, str):
-            raise TypeError(f"'stop' doit être une chaîne, mais a reçu {type(self.stop).__name__}")
-        
-        self.secondes = kwargs.get('secondes', '5')  # By default, it's a string
+            raise TypeError(
+                f"'stop' doit être une chaîne, mais a reçu {type(self.stop).__name__}"
+            )
+
+        self.secondes = kwargs.get("secondes", "5")  # By default, it's a string
         try:
             self.secondes = float(self.secondes)  # Convert to a number
         except ValueError:
-            raise ValueError(f"'secondes' doit être un nombre valide, mais a reçu {self.secondes}")
+            raise ValueError(
+                f"'secondes' doit être un nombre valide, mais a reçu {self.secondes}"
+            )
 
-        
         print(f"kwargs reçus : {kwargs}")  # Debug: print received arguments
-        
+
         self._serial = serial.Serial(self._port)
 
     def reward(self):
