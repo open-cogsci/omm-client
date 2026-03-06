@@ -57,6 +57,10 @@ class PoluluTicT825(BaseConditioner):
         try:
             position = self.get_current_position()
             new_target = position - self.motor_n_pulses
+        except Exception as e:
+            print(f"Cannot read motor position: {e}")
+            return
+        try:
             self.energize()
             self.exit_safe_start()
             self.set_target_position(new_target)
@@ -64,9 +68,10 @@ class PoluluTicT825(BaseConditioner):
                 self.motor_n_pulses * 0.004
             ) + 1  # 1 sec min, and 0.004s/step
             time.sleep(motor_pause)
-            self.deenergize()
         except Exception as e:
             print(f"Error in _reward thread : {e}")
+        finally:
+            self.deenergize()
 
     # Sends the "Exit safe start" command.
     def exit_safe_start(self):

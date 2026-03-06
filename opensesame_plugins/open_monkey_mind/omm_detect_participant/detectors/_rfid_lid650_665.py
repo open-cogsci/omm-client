@@ -40,91 +40,98 @@ class RfidLID650_665(rfid):
         <Checksum> hexadecimal value between 00h-FFh XOR on all previous hexadecimal values
         """
         readers = []
-        try:
-            for port in ports:
+
+        for port in ports:
+            try:
                 reader = serial.Serial(
                     port=port, baudrate=baudrate, timeout=serial_read_timeout
                 )
                 reader.flushInput()
                 readers.append((port, reader))
+            except serial.SerialException as e:
+                error_queue.put(f"Cannot open serial port {port}: {e}")
+                return
 
-            # One buffer and last RFID per reader
-            buffers = {port: b"" for port, _ in readers}
-            # last_rfids = {port: None for port, _ in readers}
+        # One buffer and last RFID per reader
+        buffers = {port: b"" for port, _ in readers}
+        # last_rfids = {port: None for port, _ in readers}
 
-            # Socket is here to send RFID chip information to potential other process 4 executing some actions (like record video when monkey play)
-            DEST_IP = "127.0.0.1"
-            DEST_PORT = 6000
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # Socket is here to send RFID chip information to potential other process 4 executing some actions (like record video when monkey play)
+        DEST_IP = "127.0.0.1"
+        DEST_PORT = 6000
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-            while not stop_event.is_set():
-                if reset_event.is_set():
-                    reset_event.clear()
-                    for port, reader in readers:
-                        reader.flushInput()
-                        buffers[port] = b""
-                        # last_rfids[port] = None
-
+        while not stop_event.is_set():
+            if reset_event.is_set():
+                reset_event.clear()
                 for port, reader in readers:
-                    # Read incoming bytes and append to the buffer for that port
-                    # buffers[port] += reader.read(rfid_length)
-                    byte = reader.read(1)
-
-                    if not byte:
-                        continue  # Timeout or nothing
-
-                    buffers[port] += byte
-
-                    # Check end of frame <DLE><ETX>
-                    if len(buffers[port]) >= 2 and buffers[port][-2:] == b"\x10\x03":
-                        # Get chexksum
-                        checksum = reader.read(1)
-                        buffers[port] += checksum
-                    else:
-                        continue
-
-                    try:
-                        if len(buffers[port]) < 9:
-                            raise ValueError("RFID frame too short")
-                        if not (buffers[port][0] == 0x10 and buffers[port][1] == 0x02):
-                            raise ValueError("RFID Frame not begining with DLE STX")
-
-                        unit_from = buffers[port][2]
-                        unit_to = buffers[port][3]
-                        checksum = buffers[port][-1]
-                        data = buffers[port][4:-3]
-
-                        # checksum_calc = sum(frame[:-1]) % 256
-                        checksum_calc = functools.reduce(
-                            operator.xor, buffers[port][:-1]
-                        )
-
-                        if checksum_calc != checksum:
-                            raise ValueError(
-                                "Checksum mismatch: got "
-                                + str(checksum)
-                                + " calculated "
-                                + str(checksum_calc)
-                            )
-
-                        tag = buffers[port][4:-3].hex().upper()
-                        queue.put((port, tag))  # Include port to help identify source
-
-                        # Send info to socket
-                        sock.sendto(tag.encode(), (DEST_IP, DEST_PORT))
-
-                    except ValueError as e:
-                        error_queue.put(str(e) + " | buffer: " + buffers[port].hex())
-                        buffers[port] = b""
-
-                    # Retirer la trame traitée du buffer
+                    reader.flushInput()
                     buffers[port] = b""
+                    # last_rfids[port] = None
 
-            for _, reader in readers:
-                error_queue.put("Closing reader")
-                reader.close()
+            for port, reader in readers:
+                # Read incoming bytes and append to the buffer for that port
+                # buffers[port] += reader.read(rfid_length)
+                try:
+                    byte = reader.read(1)
+                    if not byte:
+                        continue  # Timeout or nothing read, skip to next reader
+                except serial.SerialException as e:
+                    error_queue.put(f"Serial read error on {port}: {e}")
+                    continue
 
-        except Exception as e:
-            print(f"Error in RFID monitor: {e}")
-            stop_event.set()
-            error_queue.put(traceback.format_exc())
+                buffers[port] += byte
+
+                # Check end of frame <DLE><ETX>
+                if len(buffers[port]) >= 2 and buffers[port][-2:] == b"\x10\x03":
+                    # Get chexksum
+                    try:
+                        checksum = reader.read(1)
+                    except serial.SerialException as e:
+                        error_queue.put(f"Serial read error on {port}: {e}")
+                        continue
+                    buffers[port] += checksum
+                else:
+                    continue
+
+                if len(buffers[port]) < 9:
+                    error_queue.put(
+                        f"RFID frame too short | buffer: {buffers[port].hex()}"
+                    )
+                    continue
+
+                if not (buffers[port][0] == 0x10 and buffers[port][1] == 0x02):
+                    error_queue.put(
+                        f"RFID frame does not start with DLE STX | buffer: {buffers[port].hex()}"
+                    )
+                    continue
+
+                unit_from = buffers[port][2]
+                unit_to = buffers[port][3]
+                checksum = buffers[port][-1]
+                data = buffers[port][4:-3]
+
+                # checksum_calc = sum(frame[:-1]) % 256
+                checksum_calc = functools.reduce(operator.xor, buffers[port][:-1])
+
+                if checksum_calc != checksum:
+                    error_queue.put(
+                        f"Checksum mismatch: got {checksum} calculated {checksum_calc} | buffer: {buffers[port].hex()}"
+                    )
+                    continue
+
+                tag = buffers[port][4:-3].hex().upper()
+                queue.put((port, tag))  # Include port to help identify source
+
+                # Send info to socket
+                try:
+                    sock.sendto(tag.encode(), (DEST_IP, DEST_PORT))
+                except OSError as e:
+                    error_queue.put(f"UDP send error: {e}")
+
+                # Retirer la trame traitée du buffer
+                buffers[port] = b""
+
+        for _, reader in readers:
+            error_queue.put("Closing reader")
+            reader.close()

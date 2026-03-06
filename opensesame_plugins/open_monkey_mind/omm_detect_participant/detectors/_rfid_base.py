@@ -51,80 +51,78 @@ class rfid:
         """
 
         readers = []
-        try:
-            for port in ports:
+
+        for port in ports:
+            try:
                 reader = serial.Serial(
                     port=port, baudrate=baudrate, timeout=serial_read_timeout
                 )
                 reader.flushInput()
-                readers.append((port, reader))
+                readers.append((port, reader))                
+            except serial.SerialException as e:
+                error_queue.put(f"Cannot open RFID reader {port}: {e}")
+                return
 
-            # One buffer and last RFID per reader
-            buffers = {port: b"" for port, _ in readers}
-            last_rfids = {port: None for port, _ in readers}
+        # One buffer and last RFID per reader
+        buffers = {port: b"" for port, _ in readers}
+        last_rfids = {port: None for port, _ in readers}
 
-            while not stop_event.is_set():
-                if (
-                    reset_event.is_set()
-                ):  # Set when last detect_participant_plugin is run (in entry point)
-                    reset_event.clear()
-                    for port, reader in readers:
-                        reader.flushInput()
-                        buffers[port] = b""
-                        last_rfids[port] = None
-
+        while not stop_event.is_set():
+            if (
+                reset_event.is_set()
+            ):  # Set when last detect_participant_plugin is run (in entry point)
+                reset_event.clear()
                 for port, reader in readers:
-                    # Read incoming bytes
-                    sread = reader.read(rfid_length)
+                    reader.flushInput()
+                    buffers[port] = b""
+                    last_rfids[port] = None
 
-                    # If reset_event is set when reader is stuck by serial read timeout
-                    # clear the last_rfids number, otherwise it can block indefinitely
-                    # the detection of RFID if the same one is read
-                    if reset_event.is_set():
-                        reset_event.clear()
-                        last_rfids = {port: None for port, _ in readers}
-                        buffers = {port: b"" for port, _ in readers}
+            for port, reader in readers:
+                # Read incoming bytes
+                sread = reader.read(rfid_length)
 
-                    # Append last RFID read to buffer for that port
-                    buffers[port] += sread
+                # If reset_event is set when reader is stuck by serial read timeout
+                # clear the last_rfids number, otherwise it can block indefinitely
+                # the detection of RFID if the same one is read
+                if reset_event.is_set():
+                    reset_event.clear()
+                    last_rfids = {port: None for port, _ in readers}
+                    buffers = {port: b"" for port, _ in readers}
 
-                    # Extract potential RFID strings
-                    rfids = [
-                        r
-                        for r in buffers[port].split(rfid_sep)
-                        if len(r) == rfid_length - 1
-                    ]
+                # Append last RFID read to buffer for that port
+                buffers[port] += sread
 
-                    # Original code in comments doesn't work well, I don't know why.
-                    # It replaced by the code above (keep here for memory)
-                    # if len(set(rfids)) > 1:
-                    #    # If inconsistent reads are detected, keep only the repeated valid entries
-                    #    buffers[port] = RFID_SEP.join([rfids[-1]] * rfids.count(rfids[-1]))
-                    #    error_queue.put(buffers[port])
-                    #    continue
+                # Extract potential RFID strings
+                rfids = [
+                    r
+                    for r in buffers[port].split(rfid_sep)
+                    if len(r) == rfid_length - 1
+                ]
 
-                    # For each tag, count how many times it appears to try to eliminate read errors.
-                    for i in range(len(rfids) - 1, -1, -1):
-                        if rfids.count(rfids[i]) >= min_rep:
-                            rfid = rfids[i].decode()
+                # Original code in comments doesn't work well, I don't know why.
+                # It replaced by the code above (keep here for memory)
+                # if len(set(rfids)) > 1:
+                #    # If inconsistent reads are detected, keep only the repeated valid entries
+                #    buffers[port] = RFID_SEP.join([rfids[-1]] * rfids.count(rfids[-1]))
+                #    error_queue.put(buffers[port])
+                #    continue
 
-                            if (
-                                rfid != last_rfids[port]
-                            ):  # Only send to queue if it's a new RFID for that reader(used by omm.current_participant_changed)
-                                queue.put(
-                                    (port, rfid)
-                                )  # Include port to help identify source
-                                last_rfids[port] = rfid
-                                buffers[port] = (
-                                    b""  # Clear buffer after successful read
-                                )
+                # For each tag, count how many times it appears to try to eliminate read errors.
+                for i in range(len(rfids) - 1, -1, -1):
+                    if rfids.count(rfids[i]) >= min_rep:
+                        rfid = rfids[i].decode()
 
-            for _, reader in readers:
-                reader.close()
+                        if (
+                            rfid != last_rfids[port]
+                        ):  # Only send to queue if it's a new RFID for that reader(used by omm.current_participant_changed)
+                            queue.put(
+                                (port, rfid)
+                            )  # Include port to help identify source
+                            last_rfids[port] = rfid
+                            buffers[port] = b""  # Clear buffer after successful read
 
-        except Exception:
-            stop_event.set()
-            error_queue.put(traceback.format_exc())
+        for _, reader in readers:
+            reader.close()
 
     def prepare(self):
 
@@ -132,12 +130,10 @@ class rfid:
             oslogger.info("starting RFID monitor process")
             import multiprocessing
 
-            # Important : define start method to avoid Windows/macOS error
-            try:
-                if __name__ == "__main__":
+            # Important : define start method to avoid Windows/macOS error when using multiprocessing in a submodule of the main experiment (like here in omm_detect_participant)
+            if __name__ == "__main__":
+                if multiprocessing.get_start_method(allow_none=True) != "spawn":
                     multiprocessing.set_start_method("spawn")
-            except RuntimeError:
-                pass  # Already define
 
             self.experiment._omm_participant_queue = multiprocessing.Queue()
             self.experiment._omm_participant_reset_event = multiprocessing.Event()
