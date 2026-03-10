@@ -3,7 +3,6 @@ import serial
 import time
 
 
-
 class RfidRWeTTL(rfid):
     SERIAL_TIMEOUT = 0.1  # read_timeout need to be higher then 0.0X
 
@@ -37,10 +36,9 @@ class RfidRWeTTL(rfid):
                 )
             except serial.SerialException as e:
                 error_queue.put(f"Cannot open serial port {port}: {e}")
-                return            
+                return
             reader.flushInput()
-            readers.append((port, reader))                
-
+            readers.append((port, reader))
 
         # One buffer and last RFID per reader
         buffers = {port: b"" for port, _ in readers}
@@ -62,12 +60,12 @@ class RfidRWeTTL(rfid):
                 try:
                     # Read incoming bytes and append to the buffer for that port
                     tag = reader.read(rfid_length)
-                    if not tag:
-                        continue  # Timeout or nothing read, skip to next reader
-
                 except serial.SerialException as e:
                     error_queue.put(f"Serial read error on {port}: {e}")
                     continue  # skip this reader iteration
+
+                if not tag:
+                    continue  # Timeout or nothing read, skip to next reader
 
                 buffers[port] += tag
 

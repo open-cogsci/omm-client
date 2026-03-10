@@ -4,6 +4,7 @@ import functools
 import operator
 import socket
 
+
 class RfidLID650_665(rfid):
     SERIAL_READ_TIMEOUT = None
 
