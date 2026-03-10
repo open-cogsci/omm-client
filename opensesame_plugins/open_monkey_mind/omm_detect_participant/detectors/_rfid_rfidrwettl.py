@@ -1,7 +1,7 @@
 from ._rfid_base import rfid
 import serial
 import time
-import traceback
+
 
 
 class RfidRWeTTL(rfid):
@@ -30,20 +30,17 @@ class RfidRWeTTL(rfid):
         """
 
         readers = []
-        try:
-            for port in ports:
-                try:
-                    reader = serial.Serial(
-                        port=port, baudrate=baudrate, timeout=serial_read_timeout
-                    )
-                    reader.flushInput()
-                    readers.append((port, reader))
-                except serial.SerialException as e:
-                    error_queue.put(f"Cannot open serial port {port}: {e}")
-                    return            
-        except serial.SerialException as e:
-            error_queue.put(f"Cannot open serial port {port}: {e}")
-            return
+        for port in ports:
+            try:
+                reader = serial.Serial(
+                    port=port, baudrate=baudrate, timeout=serial_read_timeout
+                )
+            except serial.SerialException as e:
+                error_queue.put(f"Cannot open serial port {port}: {e}")
+                return            
+            reader.flushInput()
+            readers.append((port, reader))                
+
 
         # One buffer and last RFID per reader
         buffers = {port: b"" for port, _ in readers}

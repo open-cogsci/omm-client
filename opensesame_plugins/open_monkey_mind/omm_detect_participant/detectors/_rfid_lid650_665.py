@@ -1,10 +1,8 @@
 from ._rfid_base import rfid
 import serial
-import traceback
 import functools
 import operator
 import socket
-
 
 class RfidLID650_665(rfid):
     SERIAL_READ_TIMEOUT = None
@@ -46,11 +44,11 @@ class RfidLID650_665(rfid):
                 reader = serial.Serial(
                     port=port, baudrate=baudrate, timeout=serial_read_timeout
                 )
-                reader.flushInput()
-                readers.append((port, reader))
             except serial.SerialException as e:
                 error_queue.put(f"Cannot open serial port {port}: {e}")
                 return
+            reader.flushInput()
+            readers.append((port, reader))
 
         # One buffer and last RFID per reader
         buffers = {port: b"" for port, _ in readers}
@@ -74,17 +72,18 @@ class RfidLID650_665(rfid):
                 # buffers[port] += reader.read(rfid_length)
                 try:
                     byte = reader.read(1)
-                    if not byte:
-                        continue  # Timeout or nothing read, skip to next reader
                 except serial.SerialException as e:
                     error_queue.put(f"Serial read error on {port}: {e}")
                     continue
+
+                if not byte:
+                    continue  # Timeout or nothing read, skip to next reader
 
                 buffers[port] += byte
 
                 # Check end of frame <DLE><ETX>
                 if len(buffers[port]) >= 2 and buffers[port][-2:] == b"\x10\x03":
-                    # Get chexksum
+                    # Get checksum
                     try:
                         checksum = reader.read(1)
                     except serial.SerialException as e:

@@ -1,6 +1,5 @@
 import queue
 import time
-import traceback
 from libopensesame.py3compat import *
 from openmonkeymind._exceptions import OMMException
 from libopensesame.oslogging import oslogger
@@ -57,11 +56,11 @@ class rfid:
                 reader = serial.Serial(
                     port=port, baudrate=baudrate, timeout=serial_read_timeout
                 )
-                reader.flushInput()
-                readers.append((port, reader))                
             except serial.SerialException as e:
                 error_queue.put(f"Cannot open RFID reader {port}: {e}")
                 return
+            reader.flushInput()
+            readers.append((port, reader))
 
         # One buffer and last RFID per reader
         buffers = {port: b"" for port, _ in readers}
@@ -192,7 +191,7 @@ class rfid:
             # Check RFID process error
             while not self.experiment._omm_participant_error_queue.empty():
                 error = self.experiment._omm_participant_error_queue.get_nowait()
-                print("RFIDMonitorProcess errror :", error)
+                oslogger.error("RFIDMonitorProcess error :", error)
 
             # if not self.experiment._omm_participant_process.is_alive():
             #    raise RFIDMonitorProcessCrashed()

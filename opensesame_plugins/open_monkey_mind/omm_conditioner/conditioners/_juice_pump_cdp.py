@@ -1,5 +1,6 @@
 from libopensesame.py3compat import *
 from ._base_conditioner import BaseConditioner
+from libopensesame.oslogging import oslogger
 import serial
 
 DEFAULT_PORT = "COM4"
@@ -30,7 +31,7 @@ class JuicePumpCdp(BaseConditioner):
                 f"'secondes' must be a valid number, but received {self.secondes}"
             )
 
-        print(f"kwargs reçus : {kwargs}")  # Debug: print received arguments
+        oslogger.debug(f"kwargs received : {kwargs}")  # Debug: print received arguments
 
         self._serial = serial.Serial(self._port)
 
@@ -40,9 +41,8 @@ class JuicePumpCdp(BaseConditioner):
         """
         self._serial.write(self.start.encode())  # Send start signal
         self.clock.sleep(self.secondes * 1000)  # Wait for `self.secondes` seconds
-        print(self.secondes)
+        oslogger.debug(f"Activate pump for {self.secondes} seconds")
         self._serial.write(self.stop.encode())  # Send stop signal
-        print(self.start)
 
     def close(self):
         """

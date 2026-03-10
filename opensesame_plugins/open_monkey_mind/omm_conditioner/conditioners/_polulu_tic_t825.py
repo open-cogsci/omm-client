@@ -5,14 +5,17 @@ import serial
 import time
 import threading
 import platform
+from libopensesame.oslogging import oslogger
+
+PIN_RPY_SOUND_CTRL = 8
+DEFAULT_PORT = "/dev/ttyConditioner"
+BAUD_RATE = 9600
+DEFAULT_MOTOR_N_PULSES = 50  # Parameter for seed dispenser
 
 
-def is_raspberry_pi():
-    try:
-        machine = platform.machine().lower()
-        return any(arch in machine for arch in ("arm", "aarch64"))
-    except Exception:
-        return False
+def is_raspberry_pi() -> bool:
+    machine = platform.machine().lower()
+    return any(arch in machine for arch in ("arm", "aarch64"))
 
 
 if is_raspberry_pi():
@@ -20,19 +23,10 @@ if is_raspberry_pi():
         import RPi.GPIO as GPIO
 
         GPIO.setmode(GPIO.BOARD)
-        print(f"Polulu Tic t825 sound control ready")
     except ImportError:
-        print("Library RPi.GPIO not installed.")
+        oslogger.error("Library RPi.GPIO not installed.")
 
-
-PIN_RPY_SOUND_CTRL = 8
-
-
-DEFAULT_PORT = "/dev/ttyConditioner"
-BAUD_RATE = 9600
-
-# Parameter for seed dispenser
-DEFAULT_MOTOR_N_PULSES = 50
+    oslogger.info("Polulu Tic t825 sound control ready")
 
 
 class PoluluTicT825(BaseConditioner):
@@ -56,10 +50,12 @@ class PoluluTicT825(BaseConditioner):
     def _reward(self):
         try:
             position = self.get_current_position()
-            new_target = position - self.motor_n_pulses
         except Exception as e:
-            print(f"Cannot read motor position: {e}")
+            oslogger.error(f"Cannot read motor position: {e}")
             return
+
+        new_target = position - self.motor_n_pulses
+
         try:
             self.energize()
             self.exit_safe_start()
@@ -69,7 +65,7 @@ class PoluluTicT825(BaseConditioner):
             ) + 1  # 1 sec min, and 0.004s/step
             time.sleep(motor_pause)
         except Exception as e:
-            print(f"Error in _reward thread : {e}")
+            oslogger.error(f"Error in _reward thread : {e}")
         finally:
             self.deenergize()
 
@@ -148,7 +144,7 @@ class PoluluTicT825(BaseConditioner):
     def close(self):
 
         if hasattr(self, "_reward_thread") and self._reward_thread.is_alive():
-            print("Wait motor before continue (10s timeout)...")
+            oslogger.info("Wait motor before continue (10s timeout)...")
             self._reward_thread.join(timeout=10)
             self.deenergize()
 
