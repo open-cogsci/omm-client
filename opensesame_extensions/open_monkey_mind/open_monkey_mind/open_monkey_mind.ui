@@ -155,6 +155,24 @@
            <normaloff>.</normaloff>.</iconset>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>RfidRWeTTL</string>
+         </property>
+         <property name="icon">
+          <iconset theme="network-receive">
+           <normaloff>.</normaloff>.</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>RfidLID650_665</string>
+         </property>
+         <property name="icon">
+          <iconset theme="network-receive">
+           <normaloff>.</normaloff>.</iconset>
+         </property>
+        </item>        
        </widget>
       </item>
       <item row="2" column="0">

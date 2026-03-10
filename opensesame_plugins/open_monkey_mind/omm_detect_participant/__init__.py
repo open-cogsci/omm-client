@@ -8,9 +8,11 @@ controls = [
     "name": "combobox_detector",
     "type": "combobox",
     "options": [
-      "form",
-      "keypress",
-      "rfid"
+      "Form",
+      "KeyPress",
+      "rfid",
+      "RfidRWeTTL",
+      "RfidLID650_665"
     ],
     "var": "detector"
   },
@@ -19,7 +21,28 @@ controls = [
     "name": "line_edit_serial_port",
     "info": "For RFID reader",
     "type": "line_edit",
-    "var": "serial_port"
+    "var": "serial_ports"
+  },
+  {
+    "label": "Serial baudrate",
+    "name": "line_edit_serial_baud",
+    "info": "",
+    "type": "line_edit",
+    "var": "serial_baud"
+  },      
+  {
+    "label": "RFID length",
+    "name": "line_edit_rfid_length",
+    "info": "Number of rfid bytes",
+    "type": "line_edit",
+    "var": "rfid_length"
+  },
+  {
+    "label": "RFID separator",
+    "name": "line_edit_rfid_sep",
+    "info": "rfid separator between two ID",
+    "type": "line_edit",
+    "var": "rfid_sep"
   },
   {
     "label": "Variable",
@@ -36,6 +59,23 @@ controls = [
     "var": "min_rep",
     "min_val": 1,
     "max_val": 1000
+  },
+  {
+    "label": "Enable read duration",
+    "name": "checkbox_enable_duration",
+    "type": "checkbox",
+    "var": "enable_duration",
+    "info": "Enable reading for a specific duration"
+    
+  },
+  {
+    "label": "Read duration (seconds)",
+    "name": "spinbox_read_duration",
+    "type": "spinbox",
+    "var": "read_duration",
+    "min_val": 1,
+    "max_val": 3600,
+    "info": "Duration to read RFID in seconds"
   }
 ]
 

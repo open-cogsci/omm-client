@@ -10,11 +10,14 @@ class OmmConditioner(Item):
 
         self.var.conditioner = 'Dummy'
         self.var.fallback_conditioner = 'Dummy'
-        self.var.serial_port = 'COM4'
+        self.var.serial_port = '/dev/ttyRFID'
         self.var.reward = 'yes'
         self.var.sound = 'do nothing'
         self.var.motor_n_pulses = 5
         self.var.motor_pause = 200
+        self.var.start = 'S'
+        self.var.stop = 'E'
+        self.var.secondes= 5
         
     def _init_conditioner(self):
         
@@ -30,8 +33,14 @@ class OmmConditioner(Item):
         try:
             self._conditioner = cls(
                 experiment=self.experiment,
-                port=self.var.serial_port
+                port=self.var.serial_port,
+                motor_n_pulses = self.var.motor_n_pulses,
+                motor_pause = self.var.motor_pause,
+                start=self.var.start,
+                stop=self.var.stop,
+                secondes=self.var.secondes                
             )
+            
         except Exception as e:
             oslogger.info(
                 'failed to initialize ({}), falling back to: {}'.format(
@@ -39,7 +48,7 @@ class OmmConditioner(Item):
             cls = getattr(conditioners, self.var.fallback_conditioner)
             self._conditioner = cls(
                 experiment=self.experiment,
-                port=self.var.serial_port
+                port=self.var.serial_port                
             )
         self.python_workspace['omm_conditioner'] = self._conditioner
         self.experiment.cleanup_functions.append(self._close_conditioner)
@@ -59,8 +68,6 @@ class OmmConditioner(Item):
         self.set_item_onset()
         actions = []
         if self.var.reward == 'yes':
-            self._conditioner.motor_n_pulses = self.var.motor_n_pulses
-            self._conditioner.motor_pause = self.var.motor_pause
             self._conditioner.reward()
             actions.append('reward')
         if self.var.sound == 'do nothing':

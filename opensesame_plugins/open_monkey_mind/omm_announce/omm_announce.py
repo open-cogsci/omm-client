@@ -67,10 +67,15 @@ class OmmAnnounce(BaseOMMPlugin, Item):
             exp._omm_participant_process = \
                 self.experiment._omm_participant_process
             exp._omm_participant_queue = self.experiment._omm_participant_queue
+            exp._omm_participant_error_queue = self.experiment._omm_participant_error_queue
             exp._omm_participant_reset_event = \
                 self.experiment._omm_participant_reset_event
             exp._omm_participant_stop_event = \
                 self.experiment._omm_participant_stop_event
+        #When serial process is started on entrypoint, we don't want to close between tasks
+        #We let the master experiment (the entrypoint) to close it.
+        #_omm_participant_no_close_process is read in close method of _rfid_base.py            
+            exp._omm_participant_no_close_process = True
         # A few back-end-specific properties need to be copied to the
         # experiment.
         if self.experiment.var.canvas_backend == 'xpyriment':
