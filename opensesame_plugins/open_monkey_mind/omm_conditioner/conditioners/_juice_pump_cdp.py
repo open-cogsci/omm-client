@@ -13,13 +13,13 @@ class JuicePumpCdp(BaseConditioner):
         self.start = kwargs.get("start", "S")  # Default start signal
         if not isinstance(self.start, str):
             raise TypeError(
-                f"'start' doit être une chaîne, but received {type(self.start).__name__}"
+                f"'start' must be a string, but received {type(self.start).__name__}"
             )
 
         self.stop = kwargs.get("stop", "E")  # Default stop signal
         if not isinstance(self.stop, str):
             raise TypeError(
-                f"'stop' must be a string, but {type(self.stop).__name__}"
+                f"'stop' must be a string, but received {type(self.stop).__name__}"
             )
 
         self.secondes = kwargs.get("secondes", "5")  # By default, it's a string
@@ -27,7 +27,7 @@ class JuicePumpCdp(BaseConditioner):
             self.secondes = float(self.secondes)  # Convert to a number
         except ValueError:
             raise ValueError(
-                f"'secondes' doit être un nombre valide, mais a reçu {self.secondes}"
+                f"'secondes' must be a valid number, but received {self.secondes}"
             )
 
         print(f"kwargs reçus : {kwargs}")  # Debug: print received arguments
