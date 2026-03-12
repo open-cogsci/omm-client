@@ -12,7 +12,7 @@ class RFIDMonitorProcessCrashed(OMMException):
     pass
 
 
-class rfid:
+class RFID:
     SERIAL_READ_TIMEOUT = 0.5  # Greater timout = less cpu. None is great too if only one serial port is used.
 
     def __init__(self, **kwargs):

@@ -130,7 +130,7 @@
        <widget class="QComboBox" name="cfg_omm_detector">
         <item>
          <property name="text">
-          <string>form</string>
+          <string>Form</string>
          </property>
          <property name="icon">
           <iconset theme="input-keyboard">
@@ -139,7 +139,7 @@
         </item>
         <item>
          <property name="text">
-          <string>keypress</string>
+          <string>KeyPress</string>
          </property>
          <property name="icon">
           <iconset theme="input-keyboard">
@@ -148,7 +148,7 @@
         </item>
         <item>
          <property name="text">
-          <string>rfid</string>
+          <string>RFID</string>
          </property>
          <property name="icon">
           <iconset theme="network-receive">
@@ -157,7 +157,7 @@
         </item>
         <item>
          <property name="text">
-          <string>RfidRWeTTL</string>
+          <string>RFIDRWeTTL</string>
          </property>
          <property name="icon">
           <iconset theme="network-receive">
@@ -166,13 +166,13 @@
         </item>
         <item>
          <property name="text">
-          <string>RfidLID650_665</string>
+          <string>RFIDLID650_665</string>
          </property>
          <property name="icon">
           <iconset theme="network-receive">
            <normaloff>.</normaloff>.</iconset>
          </property>
-        </item>        
+        </item>
        </widget>
       </item>
       <item row="2" column="0">

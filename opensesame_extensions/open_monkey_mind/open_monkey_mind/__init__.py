@@ -10,7 +10,7 @@ menu = {
 settings = {
   "omm_server": "127.0.0.1",
   "omm_port": 3000,
-  "omm_detector": "form",
+  "omm_detector": "Form",
   "omm_backend": "psycho",
   "omm_width": 1024,
   "omm_height": 768,
