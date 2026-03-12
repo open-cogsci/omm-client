@@ -139,7 +139,7 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
             size = f['size']
             break
         else:
-            raise InvalidJSON(safe_decode(json))
+            raise InvalidJSON(f'no experiment file (study_id = {self._study})')
         cache_path = os.path.join(
             tempfile.gettempdir(),
             hashlib.md5(safe_encode(path + updated_at)).hexdigest() + '.osexp'
