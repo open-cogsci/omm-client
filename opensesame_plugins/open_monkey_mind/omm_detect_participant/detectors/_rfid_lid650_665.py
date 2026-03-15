@@ -1,15 +1,12 @@
-from ._rfid_base import rfid
+from ._rfid_base import RFID
 import serial
 import functools
 import operator
 import socket
 
 
-class RfidLID650_665(rfid):
+class RFIDLID650_665(RFID):
     SERIAL_READ_TIMEOUT = None
-
-    def __init__(self, **kwargs):
-        super(RfidLID650_665, self).__init__(**kwargs)
 
     @staticmethod
     def _rfid_monitor(

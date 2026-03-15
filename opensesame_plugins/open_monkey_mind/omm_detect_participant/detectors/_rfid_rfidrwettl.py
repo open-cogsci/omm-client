@@ -1,13 +1,10 @@
-from ._rfid_base import rfid
+from ._rfid_base import RFID
 import serial
 import time
 
 
-class RfidRWeTTL(rfid):
+class RFIDRWeTTL(RFID):
     SERIAL_TIMEOUT = 0.1  # read_timeout need to be higher then 0.0X
-
-    def __init__(self, **kwargs):
-        super(RfidRWeTTL, self).__init__(**kwargs)
 
     @staticmethod
     def _rfid_monitor(

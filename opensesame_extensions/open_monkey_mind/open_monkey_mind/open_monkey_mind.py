@@ -169,10 +169,7 @@ class OpenMonkeyMind(BaseExtension):
     def _connect(self):
         
         self._template_entry_point()
-        self.main_window.run_experiment(
-            fullscreen=cfg.omm_fullscreen,
-            quick=True
-        )
+        self.main_window.run_experiment(quick=True)
     
     def _template_entry_point(self):
         

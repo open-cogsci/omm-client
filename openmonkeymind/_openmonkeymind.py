@@ -8,6 +8,7 @@ import tempfile
 import hashlib
 import requests
 from json import dumps as json_dumps
+from openmonkeymind._cached_experiment import CachedExperiment
 from openmonkeymind._baseopenmonkeymind import BaseOpenMonkeyMind, BaseJob
 from openmonkeymind._exceptions import (
     ParticipantNotFound,
@@ -139,7 +140,7 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
             size = f['size']
             break
         else:
-            raise InvalidJSON(safe_decode(json))
+            raise InvalidJSON(f'no experiment file (study_id = {self._study})')
         cache_path = os.path.join(
             tempfile.gettempdir(),
             hashlib.md5(safe_encode(path + updated_at)).hexdigest() + '.osexp'
@@ -156,11 +157,10 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
                 raise FailedToDownloadExperiment()
             with open(cache_path, 'wb') as fd:
                 fd.write(response.content)
-            oslogger.info('caching {} to {}'.format(path, cache_path))
-        self._experiment = experiment(string=cache_path)
+            oslogger.info('downloading {} to {}'.format(path, cache_path))
+        self._experiment = CachedExperiment(string=cache_path)
         oslogger.info(
-            'building experiment ({:.3f} s)'.format(time.time() - t0)
-        )
+            'building experiment ({:.3f} s)'.format(time.time() - t0))
         return self._experiment
     
     def announce(self, participant):

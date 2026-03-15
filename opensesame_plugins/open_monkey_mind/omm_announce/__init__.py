@@ -45,6 +45,12 @@ controls = [
     "var": "omm_fallback_experiment"
   },
   {
+    "label": "Ignore unknown participants",
+    "name": "checkbox_ignore_unknown_participants",
+    "type": "checkbox",
+    "var": "omm_ignore_unknown_participants"
+  },
+  {
     "label": "YAML data",
     "name": "yaml_data",
     "type": "editor",

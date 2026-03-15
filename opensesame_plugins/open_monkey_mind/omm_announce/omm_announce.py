@@ -27,6 +27,7 @@ class OmmAnnounce(BaseOMMPlugin, Item):
         self.var.omm_local_logfile = ''
         self.var.omm_fallback_experiment = ''
         self.var.omm_yaml_data = ''
+        self.var.omm_ignore_unknown_participants = 'yes'
         BaseOMMPlugin.reset(self)
         
     def run(self):
@@ -46,6 +47,9 @@ class OmmAnnounce(BaseOMMPlugin, Item):
             NoJobsForParticipant,
             requests.exceptions.ConnectionError
         ) as e:
+            if self.var.omm_ignore_unknown_participants == 'yes':
+                oslogger.warning(f'ignoring unknown participant "{detected_participant_id}"')
+                return
             oslogger.warning(e)
             exp = self._fallback_experiment()
             self._openmonkeymind._participant = detected_participant_id
