@@ -308,7 +308,7 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
             return self._get(
                 'sessions?study_id={}'.format(self._study),
                 ValueError
-            )['data']
+            ).get('data')
         except ValueError:
             return None
         
@@ -328,7 +328,7 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
             return self._get(
                 'sessions?participant_id={}'.format(self._participant),
                 ValueError
-            )['data']
+            ).get('data')
         except ValueError:
             return None
         
@@ -351,7 +351,7 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
                     self._study
                 ),
                 ValueError
-            )['data']
+            ).get('data')
         except ValueError:
             return None
         
