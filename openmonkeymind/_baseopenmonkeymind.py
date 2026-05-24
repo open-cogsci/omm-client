@@ -1,18 +1,39 @@
+"""An instance of `BaseOpenMonkeyMind` lives as the `omm` object in the Python 
+workspace in OpenSesame experiments.
+
+In a Python `inline_script`, you can check whether an experiment is being
+run in the context of OpenMonkeyMind (as opposed to being launched directly
+from within OpenSesame) like so:
+
+```py
+# In an initialization script, detect whether `omm` is available.
+if 'omm' not in globals() or not omm.connected:
+    omm = None
+
+# Elsewhere, make code contingent on whether `omm` is available.
+if omm is not None:
+    # OpenMonkeyMind functionality
+else:
+    # Dummy functionality
+```
+"""
+
 from libopensesame.py3compat import *
 from libopensesame.experiment import Experiment
 
-
 class BaseJob:
 
-    """A job consists of:
+    """A job consisting of a state, an id, and job/result variables.
 
-    - A state, which can be PENDING, STARTED, or FINISHED
-    - An id, which uniquely identifies the job. The id is not an index, that
-      is, it does not indicate the position of the job in the job table.
+    A job consists of:
+    - A state, which can be PENDING, STARTED, or FINISHED.
+    - An id, which uniquely identifies the job. The id is not an index, i.e.,
+      it does not indicate the position of the job in the job table.
     - A set of job variables, such as experimental conditions.
     - A set of result variables, such as response variables. A job can have
       multiple result variables if the job has been reset and then repeated. In
       that case, the last set of result variables is included.
+
     """
 
     # Job states
@@ -130,28 +151,6 @@ class BaseOpenMonkeyMind(object):
 
     Lives as the `omm` object in the Python workspace in OpenSesame
     experiments.
-    
-    In a Python inline_script, you can check whether an experiment is being 
-    run in the context of OpenMonkeyMind (as opposed to being launched directly
-    from within OpenSesame) like so:
-    
-    ```py
-    # In an initialization script, detect whether `omm` is available.
-    try:
-        omm
-    except NameError:
-        # OpenMonkeyMind does not exist at all
-        omm = None
-    else:
-        if not omm.connected:
-            omm = None
-            
-    # Elsewhere, make code contingent on whether `omm` is available.
-    if omm is not None:
-        # OpenMonkeyMind functionality
-    else:
-        # Dummy functionality    
-    ```
     """
 
     def __init__(self):
@@ -194,8 +193,7 @@ class BaseOpenMonkeyMind(object):
     @property
     def current_participant_ids(self) -> tuple(str, str):
 
-        """A tuple with the participant identifier and the alternate participant
-        identifier.
+        """A tuple with the participant identifier and the alternate participant identifier.
 
         Returns
         -------
@@ -317,8 +315,7 @@ class BaseOpenMonkeyMind(object):
 
     def announce(self, participant: str) -> Experiment:
 
-        """Announces a new participant and retrieves the experiment file for that
-        participant.
+        """Announces a new participant and retrieves the experiment file for that participant.
 
         The returned experiment is now the current experiment. The participant is
         now the current participant.
@@ -352,7 +349,7 @@ class BaseOpenMonkeyMind(object):
 
         Returns
         -------
-        Job
+        BaseJob
             A Job object.
         """
 
@@ -404,7 +401,7 @@ class BaseOpenMonkeyMind(object):
 
         Returns
         -------
-        list
+        list[BaseJob]
             A list of Job objects.
         """
 
@@ -421,7 +418,7 @@ class BaseOpenMonkeyMind(object):
         ----------
         index : int
             The index at which to insert the jobs.
-        jobs : list
+        jobs : list[dict]
             A list of dictionaries (not Job objects), where the variables and
             values are keys and values of the dict.
         """
@@ -470,8 +467,7 @@ class BaseOpenMonkeyMind(object):
     @property
     def generic_study_data(self) -> object:
 
-        """General-purpose data specific to the current study but shared across
-        all participants.
+        """General-purpose data specific to the current study but shared across all participants.
 
         The data can be any object that can be serialized by JSON. If no data
         has been set, it has the value `None`.
@@ -553,6 +549,7 @@ class BaseOpenMonkeyMind(object):
             The data to set. Must be serializable by JSON.
         """
 
+        pass
         pass
 
     def __reduce__(self):
