@@ -19,7 +19,7 @@ OpenMonkeyMind (OMM) allows OpenSesame experiments to be managed on a central se
 - Pascal Belin, Aix Marseille University, France
 - Gregory Desor (@gdesor)
 - Clément Yasar (@ClemClem25)
-- Blazej 
+- Blazej M. Baczkowski (@BmBaczkowski)
 
 The development of Open Monkey Mind was supported by ERC Advanced grant COVOPRIM #78824
 
@@ -132,7 +132,7 @@ else:
 
 For a complete API reference, see:
 
-- </docs/api.md>
+- <https://github.com/open-cogsci/omm-client/blob/master/docs/api.md>
 
 
 
