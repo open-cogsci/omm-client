@@ -99,6 +99,7 @@ class BaseOpenMonkeyMind(object):
     def __init__(self):
         
         self._participant = None
+        self._alternate_participant_id = None
         self._participant_name = None
         self._experiment = None
         self._job_id = None
@@ -115,7 +116,29 @@ class BaseOpenMonkeyMind(object):
         """
         
         return self._participant
-    
+        
+        
+    @property
+    def current_alternate_participant_id(self):
+        
+        """
+        name: current_alternate_participant
+        desc: The alternate identifier of the currently announced participant.
+        """
+        
+        return self._alternate_participant_id
+        
+    @property
+    def current_participant_ids(self):
+        
+        """
+        name: current_participant_ids
+        desc: |
+            A tuple with the participant identifier and the alternate
+            participant identifier.
+        """
+        return self._participant, self._alternate_participant_id
+        
     @property
     def current_participant_changed(self):    
         """

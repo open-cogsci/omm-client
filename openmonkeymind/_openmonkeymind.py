@@ -23,7 +23,6 @@ from openmonkeymind._exceptions import (
     FailedToSetGenericParticipantData,
     FailedToSetGenericSessionData
 )
-from libopensesame.experiment import experiment
 
 TIMEOUT_AVAILABLE = 2  # Number of seconds to wait for healthz endpoint
 
@@ -166,28 +165,22 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
     def announce(self, participant):
         
         json = self._get(
-            'participants/{}/canonical'.format(participant),
-            ParticipantNotFound('participant id: {}'.format(participant))
-        )
-        if not json['identifier']:
-            raise ParticipantNotFound()
-        if json['identifier'] != participant:
-            participant = json['identifier']
-            oslogger.info('using canonical id {}'.format(participant))
-        json = self._get(
             'participants/{}/announce'.format(participant),
             NoJobsForParticipant('participant id: {}'.format(participant))
         )
         if not json['active']:
             raise NoJobsForParticipant()
-        self._participant = participant
+        # Due to the pivot structure of the result, the participant is nested in
+        # the result, but it's always present.
+        participant = json['participants'][0]
+        self._participant = participant['identifier']
+        self._alternate_participant_id = participant['alternate_identifier']
+        self._participant_name = participant['name']
         self._study = json['id']
-        self._participant_name = json['name']
         self._job_count = json['jobs_count']
         # The participant metadata is optional, and is None if no metadata has
         # been specified.
-        metadata = json['participants'][0]['meta']
-        self._participant_name = json['participants'][0]['name']
+        metadata = participant['meta']
         if metadata is None:
             self._participant_metadata = {}
         else:
