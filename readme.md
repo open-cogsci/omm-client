@@ -36,7 +36,7 @@ The development of Open Monkey Mind was supported by ERC Advanced grant COVOPRIM
 
 ## Requirements
 
-- [OpenSesame 3.3](https://osdoc.cogsci.nl/)
+- [OpenSesame 4.1](https://osdoc.cogsci.nl/)
 - [OpenMonkeyMind server software](https://github.com/open-cogsci/omm-server)
 
 
