@@ -11,7 +11,6 @@ from json import dumps as json_dumps
 from openmonkeymind._cached_experiment import CachedExperiment
 from openmonkeymind._baseopenmonkeymind import BaseOpenMonkeyMind, BaseJob
 from openmonkeymind._exceptions import (
-    ParticipantNotFound,
     NoJobsForParticipant,
     FailedToSendJobResults,
     InvalidJSON,
@@ -363,8 +362,22 @@ class OpenMonkeyMind(BaseOpenMonkeyMind):
 
     @property
     def current_participant_changed(self):
+        # If there is no polling process, the current participant cannot have
+        # changed.
         if not hasattr(self._experiment, '_omm_participant_process'):
             oslogger.warning(
                 'experiment._omm_participant_process does not exist')
             return False
-        return not self._experiment._omm_participant_queue.empty()
+        # If there is a polling process, but it didn't detect anything, the
+        # current participant didn't change.
+        if self._experiment._omm_participant_queue.empty():
+            return False            
+        _, detected_id = self._experiment._omm_participant_queue.get_nowait()
+        oslogger.info(f'detected_id = {detected_id}')
+        # If the detected ID is either the alternate or real id, the current
+        # participant didn't change. The only that changed is that the other ID
+        # of the same participant was scanned.
+        if detected_id in self.current_participant_ids:
+            return False
+        # In all other cases, the current participant changed
+        return True
