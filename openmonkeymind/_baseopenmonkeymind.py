@@ -191,7 +191,7 @@ class BaseOpenMonkeyMind(object):
         return self._alternate_participant_id
 
     @property
-    def current_participant_ids(self) -> tuple(str, str):
+    def current_participant_ids(self) -> tuple[str, str]:
 
         """A tuple with the participant identifier and the alternate participant identifier.
 
