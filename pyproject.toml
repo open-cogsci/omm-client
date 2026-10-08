@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "opensesame-extension-omm"
-version = "1.0.0"
+version = "1.0.1"
 description = "OpenMonkeyMind plugins and extension for OpenSesame"
 authors = ["Sebastiaan Mathôt <s.mathot@cogsci.nl>"]
 readme = "readme.md"
@@ -15,6 +15,7 @@ repository = "https://github.com/open-cogsci/omm-client"
 
 [tool.poetry.dependencies]
 requests = "*"
+pyserial = "*"
 
 [build-system]
 requires = ["poetry-core"]
