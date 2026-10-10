@@ -133,8 +133,7 @@
           <string>Form</string>
          </property>
          <property name="icon">
-          <iconset theme="input-keyboard">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="input-keyboard"/>
          </property>
         </item>
         <item>
@@ -142,8 +141,7 @@
           <string>KeyPress</string>
          </property>
          <property name="icon">
-          <iconset theme="input-keyboard">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="input-keyboard"/>
          </property>
         </item>
         <item>
@@ -151,8 +149,7 @@
           <string>RFID</string>
          </property>
          <property name="icon">
-          <iconset theme="network-receive">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="network-receive"/>
          </property>
         </item>
         <item>
@@ -160,8 +157,7 @@
           <string>RFIDRWeTTL</string>
          </property>
          <property name="icon">
-          <iconset theme="network-receive">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="network-receive"/>
          </property>
         </item>
         <item>
@@ -169,8 +165,7 @@
           <string>RFIDLID650_665</string>
          </property>
          <property name="icon">
-          <iconset theme="network-receive">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="network-receive"/>
          </property>
         </item>
        </widget>
@@ -189,8 +184,7 @@
           <string>psycho</string>
          </property>
          <property name="icon">
-          <iconset theme="os-psychopy">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="os-psychopy"/>
          </property>
         </item>
         <item>
@@ -198,8 +192,7 @@
           <string>psycho_legacy</string>
          </property>
          <property name="icon">
-          <iconset theme="os-psychopy">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="os-psychopy"/>
          </property>
         </item>
         <item>
@@ -207,8 +200,7 @@
           <string>legacy</string>
          </property>
          <property name="icon">
-          <iconset theme="os-pygame">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="os-pygame"/>
          </property>
         </item>
         <item>
@@ -216,8 +208,7 @@
           <string>xpyriment</string>
          </property>
          <property name="icon">
-          <iconset theme="os-expyriment">
-           <normaloff>.</normaloff>.</iconset>
+          <iconset theme="os-expyriment"/>
          </property>
         </item>
        </widget>
@@ -281,9 +272,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cfg_omm_fullscreen">
+          <widget class="QCheckBox" name="cfg_omm_quickrun">
            <property name="text">
-            <string>Fullscreen</string>
+            <string>Quick run</string>
            </property>
           </widget>
          </item>
@@ -328,8 +319,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="document-open">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="document-open"/>
            </property>
           </widget>
          </item>
@@ -356,8 +346,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="os-run-quick">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="os-run-quick"/>
         </property>
        </widget>
       </item>
@@ -392,8 +381,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="document-open">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="document-open"/>
            </property>
           </widget>
          </item>
@@ -443,8 +431,7 @@
          <string>New experiment</string>
         </property>
         <property name="icon">
-         <iconset theme="document-open">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="document-open"/>
         </property>
        </widget>
       </item>
@@ -454,8 +441,7 @@
          <string>Entry point (for connecting to the server)</string>
         </property>
         <property name="icon">
-         <iconset theme="document-open">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="document-open"/>
         </property>
        </widget>
       </item>

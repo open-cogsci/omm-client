@@ -14,7 +14,7 @@ settings = {
   "omm_backend": "psycho",
   "omm_width": 1024,
   "omm_height": 768,
-  "omm_fullscreen": False,
+  "omm_quickrun": True,
   "omm_fallback_experiment": "",
   "omm_local_logfile": "omm.log",
   "omm_yaml_data": ""
